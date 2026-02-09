@@ -32,6 +32,7 @@ def generate_directed_script(analyzer_output: Union[str, Dict[str, Any]]) -> Dic
         model = genai.GenerativeModel(
             model_name=MODEL_FAST,
             system_instruction=SCRIPT_GENERATOR_SYSTEM_PROMPT,
+            generation_config={"response_mime_type": "application/json"},
         )
 
         if isinstance(analyzer_output, dict):
@@ -42,7 +43,9 @@ def generate_directed_script(analyzer_output: Union[str, Dict[str, Any]]) -> Dic
         resp = with_retries(lambda: model.generate_content(
             [analyzer_text, "Produce the directed script as STRICT JSON only."]
         ))
-        raw = resp.text or ""
+        raw = (resp.text or "").strip()
+
+# Strip common markdown code fences like 
         parsed = None
         try:
             parsed = json.loads(raw)

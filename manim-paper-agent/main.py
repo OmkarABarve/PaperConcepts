@@ -17,6 +17,25 @@ from agents.manimcodewriter import (
 from utils.validation import validate_script
 from shutil import which
 
+def _normalize_positions(obj: Any) -> None:
+    if isinstance(obj, dict):
+        for k, v in list(obj.items()):
+            if k in ("at", "from_at", "to_at", "side") and isinstance(v, str):
+                mapping = {
+                    "TOP_CENTER": "TOP",
+                    "BOTTOM_CENTER": "BOTTOM",
+                    "CENTER_TOP": "TOP",
+                    "CENTER_BOTTOM": "BOTTOM",
+                    "CENTER_LEFT": "LEFT",
+                    "CENTER_RIGHT": "RIGHT",
+                    "MIDDLE": "CENTER",
+                }
+                obj[k] = mapping.get(v, v)
+            else:
+                _normalize_positions(v)
+    elif isinstance(obj, list):
+        for i in obj:
+            _normalize_positions(i)
 
 def run(pdf_path: str, out_dir: str, scene_class: str, quality: str, render: bool) -> int:
     os.makedirs(out_dir, exist_ok=True)
@@ -54,16 +73,16 @@ def run(pdf_path: str, out_dir: str, scene_class: str, quality: str, render: boo
         print("[red]No script output[/red]")
         return 1
 
-    # Validate script JSON
+
+    # Save directed script
+    script_path = os.path.join(out_dir, "script.json")
     try:
         script_parsed = json.loads(script_raw)
+        _normalize_positions(script_parsed)
         validate_script(script_parsed)
     except Exception as e:
         print(f"[red]Directed script validation failed:[/red] {e}")
         return 1
-
-    # Save directed script
-    script_path = os.path.join(out_dir, "script.json")
     with open(script_path, "w", encoding="utf-8") as f:
         f.write(script_raw)
     print(f"[green]Saved:[/green] {script_path}")
