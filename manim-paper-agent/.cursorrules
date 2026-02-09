@@ -1,0 +1,161 @@
+# Manim Paper Agent - Cursor Rules
+
+## Project Overview
+This is a multi-agent system that reads scientific papers (PDFs) and generates Manim animations explaining mathematical concepts. Uses Google Gemini API for AI agents.
+
+## Tech Stack
+- Python 3.10+
+- Google Gemini API (2.0 Flash + 1.5 Pro)
+- Manim Community Edition
+- No frameworks (raw API calls)
+
+## Code Style Rules
+1. Use type hints for all function parameters and returns
+2. Add docstrings to all functions (Google style)
+3. Follow PEP 8 naming conventions
+4. Use f-strings for string formatting
+5. Handle errors explicitly (no bare except clauses)
+6. Add logging statements for debugging
+7. Keep functions under 50 lines when possible
+
+## Import Organization
+```python
+# Standard library
+import os
+import json
+from typing import Dict, List
+
+# Third-party
+import google.generativeai as genai
+
+# Local
+from config import GEMINI_API_KEY
+```
+
+## Error Handling Pattern
+```python
+try:
+    result = risky_operation()
+except SpecificException as e:
+    logger.error(f"Operation failed: {e}")
+    return {"error": str(e)}
+```
+
+## Function Documentation Pattern
+```python
+def function_name(param: str) -> Dict:
+    """Brief description.
+    
+    Args:
+        param: Description of parameter
+        
+    Returns:
+        Dict containing result or error
+        
+    Raises:
+        ValueError: When param is invalid
+    """
+```
+
+## Project-Specific Rules
+
+### Agents Module
+- Each agent is a standalone function (not a class yet)
+- Agents return dictionaries with consistent structure
+- All Gemini API calls must have error handling
+- Use specific model names from config.py
+
+### Utils Module  
+- Pure utility functions only (no state)
+- Each file handles one responsibility
+- Return values should be simple types (str, dict, list)
+
+### Prompts Module
+- Store prompts as module-level constants (ALL_CAPS)
+- Use triple-quoted strings for multi-line prompts
+- Include examples in prompts when useful
+
+### Main.py
+- Use argparse for CLI
+- Print progress to stdout
+- Save all outputs to outputs/ directory
+- Handle KeyboardInterrupt gracefully
+
+## Gemini API Patterns
+
+### Always use this pattern:
+```python
+import google.generativeai as genai
+from config import configure_gemini
+
+configure_gemini()
+model = genai.GenerativeModel('gemini-2.0-flash-exp')
+response = model.generate_content(prompt)
+```
+
+### For PDF uploads:
+```python
+pdf_file = genai.upload_file(pdf_path)
+response = model.generate_content([pdf_file, prompt])
+```
+
+## Testing Requirements
+- Write tests for each agent in tests/
+- Use sample inputs, verify output structure
+- Mock Gemini API calls in tests
+
+## Don't Do This
+- Don't use LangChain or other frameworks
+- Don't create classes unless necessarys
+- Don't make synchronous calls without timeouts
+- Don't ignore API errors
+- Don't hardcode API keys (use .env)
+
+## When Generating Code
+1. Always check if imports are available
+2. Add error handling for external API calls
+3. Include logging statements
+4. Return structured data (dicts/lists)
+5. Add a docstring explaining what it does
+
+## File-Specific Instructions
+
+### config.py
+- Load from .env using python-dotenv
+- Define model names as constants
+- Have a configure_gemini() function
+
+### agents/*.py
+- Function signature: def agent_name(input: Type) -> Dict
+- Return format: {"success": bool, "data": Any, "error": str}
+- Use model from config.py
+
+### utils/*.py  
+- Pure functions only
+- No external state
+- Simple input/output
+
+### main.py
+- argparse for CLI
+- Call agents in sequence
+- Print progress
+- Save outputs
+
+## When I Ask You To Create a File
+1. Show me the complete file content
+2. Include all imports
+3. Add docstrings
+4. Include example usage in comments
+5. Add error handling
+
+## When I Ask You To Debug
+1. Show the error message
+2. Explain what's wrong
+3. Show the fixed code
+4. Explain why the fix works
+
+## Priority Order
+1. Make it work (functionality first)
+2. Make it right (error handling, edge cases)
+3. Make it fast (optimization later)
+4. Make it pretty (refactor when stable)

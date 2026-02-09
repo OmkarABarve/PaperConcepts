@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.env
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Manim outputs
+media/
+outputs/
+*.mp4
+*.png
+*.gif
+
+# Logs
+*.log
+
+# Caches
+.cache/
+.mypy_cache/
+.pytest_cache/
