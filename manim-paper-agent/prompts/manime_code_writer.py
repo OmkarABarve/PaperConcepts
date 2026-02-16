@@ -101,6 +101,11 @@ Robustness:
 - If a referenced id is missing, skip that step without crashing.
 - If MathTex construction fails after sanitization retry, fallback to Text(latex_string) showing the raw formula. NEVER show "LaTeX error".
 - Keep code readable, ~200 lines max, with explicit statements for each step (no loops if avoidable).
+- If Text content contains dollar signs ($), strip them: content = content.replace("$", "")
+- NEVER place objects at overlapping positions. If two objects share a screen region, offset one with .shift(DOWN*0.5) or use next_to.
+- Between scenes, fade out ALL remaining objects before creating new ones.
+- Use .scale() and .move_to() AFTER creating objects, not font_size= in constructors, to avoid Manim property errors.
+- At the end of construct(), call self.clear() to prevent finalization errors.
 
 Task:
 - Given the storyboard content in this prompt, emit a single Python file implementing its scenes and steps exactly in sequence.

@@ -79,6 +79,15 @@ Quality flags mapping:
 Output:
 - Your MP4 will be at `manim-paper-agent/outputs/video.mp4`
 - Manim’s usual media tree is under `manim-paper-agent/outputs/media/...`
+-Gives:
+ File ready at                                                                               
+                             'C:\Users\Admin\Desktop\PaperConcepts\manim-paper-agent\outputs\med                         
+                             ia\videos\scene\720p30\video.mp4'                                                           
+                                                               
+* In powershell give command:
+Start-Process 'C:\Users\Admin\Desktop\PaperConcepts\manim-paper-agent\outputs\med                         
+                             ia\videos\scene\720p30\video.mp4'
+
 
 ## Notes / troubleshooting
 - **LaTeX failures**: install MiKTeX and re-run `python -m manim checkhealth`.
