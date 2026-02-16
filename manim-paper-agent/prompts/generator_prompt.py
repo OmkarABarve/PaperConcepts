@@ -29,6 +29,9 @@ Action vocabulary (only these):
 - "wait": pause in seconds
 - "add_arrow": draw an Arrow from one position token to another
 - "add_axes": create coordinate axes
+- "add_plot": plot a function curve on existing axes (requires axes_id referencing a prior add_axes)
+- "add_bar_chart": create a standalone bar chart with labelled bars
+- "add_number_line": create a number line with highlighted marker points
 - "add_label": attach a text/latex label to an existing object via next_to
 - "move_next_to": move an object next to another with direction and buff
 - "add_arrow_id": draw an Arrow from one object to another
@@ -75,32 +78,32 @@ JSON schema:
           "run_time": 1.0
         },
         {
-          "action": "add_arrow",
-          "id": "a1",
-          "from_at": "LEFT",
-          "to_at": "RIGHT",
-          "color": "TEAL",
-          "stroke_width": 4.0,
-          "buff": 0.1,
-          "voice": "Indicate update direction.",
-          "run_time": 0.8
-        },
-        {
           "action": "add_axes",
           "id": "ax1",
           "x_range": [-5, 5, 1],
-          "y_range": [-3, 3, 1],
-          "at": "BOTTOM_RIGHT",
-          "scale": 0.8,
-          "axis_labels": {"x": "x", "y": "y"},
+          "y_range": [0, 25, 5],
+          "at": "RIGHT",
+          "scale": 0.6,
+          "axis_labels": {"x": "x", "y": "f(x)"},
           "color": "WHITE",
+          "voice": "Let us visualize the loss landscape.",
           "run_time": 1.0
+        },
+        {
+          "action": "add_plot",
+          "id": "p1",
+          "axes_id": "ax1",
+          "function_str": "lambda x: x**2",
+          "x_range": [-5, 5],
+          "color": "TEAL",
+          "voice": "A simple quadratic loss function.",
+          "run_time": 1.5
         },
         {
           "action": "add_label",
           "id": "lbl1",
           "for_id": "ax1",
-          "content": "Loss vs Iterations",
+          "content": "Loss Landscape",
           "as_latex": false,
           "side": "TOP",
           "buff": 0.2,
@@ -109,22 +112,26 @@ JSON schema:
           "run_time": 0.6
         },
         {
-          "action": "move_next_to",
-          "id": "t1",
-          "target_id": "m1",
-          "side": "RIGHT",
-          "buff": 0.2,
-          "run_time": 0.6
+          "action": "add_bar_chart",
+          "id": "bc1",
+          "values": [0.5, 0.3, 0.0, 0.2, 0.0],
+          "bar_names": ["w1", "w2", "w3", "w4", "w5"],
+          "at": "BOTTOM",
+          "scale": 0.6,
+          "color": "GREEN",
+          "voice": "A bar chart showing sparse portfolio weights.",
+          "run_time": 2.0
         },
         {
-          "action": "add_arrow_id",
-          "id": "a2",
-          "from_id": "m1",
-          "to_id": "ax1",
-          "color": "ORANGE",
-          "stroke_width": 4.0,
-          "buff": 0.1,
-          "run_time": 0.8
+          "action": "add_number_line",
+          "id": "nl1",
+          "x_range": [0, 2, 0.5],
+          "at": "BOTTOM_LEFT",
+          "scale": 0.5,
+          "color": "WHITE",
+          "numbers_to_mark": [0.0, 0.5, 1.0, 1.5],
+          "voice": "The penalty parameter tau ranges from 0 to 2.",
+          "run_time": 1.5
         },
         {
           "action": "wait",
@@ -134,13 +141,30 @@ JSON schema:
     }
   ],
   "constraints_for_code_writer": [
-    "All LaTeX must be directly valid for MathTex (no $$ or \\[ \\])",
+    "All LaTeX must compile under amsmath. Use \\\\lVert / \\\\rVert for norms (NOT ||). Use \\\\operatorname{argmin} (NOT \\\\text{arg min}). Use \\\\mathbf for vectors.",
     "Keep scale in [0.5, 1.2]",
     "Prefer CENTER initially; reposition with move_to if needed",
     "Prefer relative placement (move_next_to) for labels and callouts",
-    "Avoid external assets; Text and MathTex only for MVP"
+    "Avoid external assets; use Text, MathTex, Axes, BarChart, NumberLine only"
   ]
 }
+
+add_plot fields:
+  "id": unique id,  "axes_id": id of a prior add_axes object,
+  "function_str": Python lambda as string (e.g. "lambda x: x**2"),
+  "x_range": [min, max] (optional, defaults to axes range),
+  "color": color string,  "voice": narration,  "run_time": seconds
+
+add_bar_chart fields:
+  "id": unique id,  "values": list of numbers,  "bar_names": list of label strings,
+  "at": position token,  "scale": number,  "color": color string,
+  "voice": narration,  "run_time": seconds
+
+add_number_line fields:
+  "id": unique id,  "x_range": [min, max, step],
+  "at": position token,  "scale": number,  "color": color string,
+  "numbers_to_mark": list of numbers to highlight with dots,
+  "voice": narration,  "run_time": seconds
 
 Rules:
 - Pull text and equations from the analyzer; do not invent math.
@@ -148,5 +172,7 @@ Rules:
 - If transforming an object, reuse its ID.
 - Use 1–3 short scenes; keep steps small and readable; sprinkle short waits (0.5–1.0s).
 - Include at least one equation when relevant.
+- CRITICAL: Every video MUST include at least one graph (add_axes + add_plot, or add_bar_chart, or add_number_line) to visually explain the concept. Text-and-equation-only videos are not acceptable. Use the analyzer's "suggested_visualizations" field when available.
+- If the analyzer suggests a bar chart, use add_bar_chart. If it suggests a line/scatter plot, use add_axes + add_plot. If it suggests a number line, use add_number_line.
 - Return ONLY the JSON.
 """

@@ -16,6 +16,7 @@ ALLOWED_ACTIONS: Set[str] = {
     "add_text", "add_math", "transform_text", "transform_math",
     "move_to", "highlight", "fade_out", "wait", "add_arrow",
     "add_axes", "add_label", "move_next_to", "add_arrow_id",
+    "add_plot", "add_bar_chart", "add_number_line",
 }
 
 SCRIPT_SCHEMA: Dict[str, Any] = {
@@ -82,7 +83,7 @@ def _assert_unique_ids(script: Dict[str, Any]) -> None:
     for scene in script.get("scenes", []):
         for step in scene.get("steps", []):
             # Only enforce uniqueness for creation steps that must define a new id
-            if step.get("action") in {"add_text", "add_math", "add_arrow", "add_axes", "add_label", "add_arrow_id"}:
+            if step.get("action") in {"add_text", "add_math", "add_arrow", "add_axes", "add_label", "add_arrow_id", "add_plot", "add_bar_chart", "add_number_line"}:
                 sid = step.get("id")
                 if not sid:
                     raise ValueError("Creation step missing 'id'")
